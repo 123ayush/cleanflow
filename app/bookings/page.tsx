@@ -71,6 +71,18 @@ export default function BookingsPage() {
     }
   };
 
+  const deleteBooking = async (id: string) => {
+    const { error } = await supabase.
+    from("bookings").delete().eq("id", id);
+
+    if (error) {
+      alert(error.message);
+    } else {
+      alert("Booking deleted successfully!");
+      fetchBookings();
+    }
+  };
+
   return (
     <div className="p-10">
       {/* Page title */}
@@ -123,8 +135,14 @@ export default function BookingsPage() {
                 key={booking.id}
                 className="border p-4 rounded bg-gray-900 text-white"
               >
-                <p className="font-bold">{booking.title}</p>
-                <p className="text-sm text-gray-300">{booking.date?.split('T')[0]}</p>
+                    <p className="font-bold">{booking.title}</p>
+                    <p className="text-sm text-gray-300">{booking.date?.split('T')[0]}</p>
+                    <button
+                      onClick={() => deleteBooking(booking.id)}
+                      className="bg-red-600 text-white px-4 py-2 rounded mt-2"
+                    >
+                      Delete Booking
+                    </button>
               </div>
             ))}
           </div>
