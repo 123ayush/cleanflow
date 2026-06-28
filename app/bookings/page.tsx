@@ -12,6 +12,9 @@ export default function BookingsPage() {
   // Store bookings from Supabase
   const [bookings, setBookings] = useState<any[]>([]);
 
+  // Store which booking is being edited
+  const [editingId, setEditingId] = useState<string | null>(null);
+
   // Get bookings from Supabase
   const fetchBookings = async () => {
     const { data, error } = await supabase
@@ -73,6 +76,34 @@ export default function BookingsPage() {
     }
   };
 
+  // Start editing booking
+  const startEdit = (booking: any) => {
+    setEditingId(booking.id);
+    setTitle(booking.title);
+    setDate(booking.date?.split("T")[0] || "");
+  };
+
+  // Update booking
+  const updateBooking = async () => {
+    const { error } = await supabase
+      .from("bookings")
+      .update({
+        title: title,
+        date: date,
+      })
+      .eq("id", editingId);
+
+    if (error) {
+      alert(error.message);
+    } else {
+      alert("Booking updated successfully!");
+      setTitle("");
+      setDate("");
+      setEditingId(null);
+      fetchBookings();
+    }
+  };
+
   return (
     <AppLayout
       title="Bookings"
@@ -100,10 +131,10 @@ export default function BookingsPage() {
         />
 
         <button
-          onClick={createBooking}
+          onClick={editingId ? updateBooking : createBooking}
           className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-lg"
         >
-          Create Booking
+          {editingId ? "Update Booking" : "Create Booking"}
         </button>
       </div>
 
@@ -131,12 +162,21 @@ export default function BookingsPage() {
                     </p>
                   </div>
 
-                  <button
-                    onClick={() => deleteBooking(booking.id)}
-                    className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg"
-                  >
-                    Delete
-                  </button>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => startEdit(booking)}
+                      className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg"
+                    >
+                      Edit
+                    </button>
+
+                    <button
+                      onClick={() => deleteBooking(booking.id)}
+                      className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg"
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
