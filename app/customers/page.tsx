@@ -44,8 +44,8 @@ export default function CustomersPage() {
     // Add the customer to the customers table
     const { error } = await supabase.from("customers").insert([
       {
-        name: name,
-        phone: phone,
+        name,
+        phone,
         user_id: data.user.id,
       },
     ]);
@@ -60,7 +60,18 @@ export default function CustomersPage() {
       setPhone("");
 
       // Load the updated customer list
-      fetchCustomers();
+      void fetchCustomers();
+    }
+  };
+
+  const deleteCustomer = async (id: string) => {
+    const { error } = await supabase.from("customers").delete().eq("id", id);
+
+    if (error) {
+      alert(error.message);
+    } else {
+      alert("Customer deleted!");
+      void fetchCustomers();
     }
   };
 
@@ -117,8 +128,18 @@ export default function CustomersPage() {
                 key={customer.id}
                 className="border p-4 rounded bg-gray-900 text-white"
               >
-                <p className="font-bold">{customer.name}</p>
-                <p className="text-sm text-gray-300">{customer.phone}</p>
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <p className="font-bold">{customer.name}</p>
+                    <p className="text-sm text-gray-300">{customer.phone}</p>
+                  </div>
+                  <button
+                    onClick={() => deleteCustomer(customer.id)}
+                    className="bg-red-600 text-white px-3 py-1 rounded"
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
             ))}
           </div>
